@@ -2,7 +2,14 @@
 
 A web tool for extracting JWT tokens and credentials from binary files. Upload `.exe` or `.txt` files, extract credentials in bulk, and download as a combined list.
 
-## Quick Start
+## 🌐 Live Version
+
+Use the tool directly in your browser (no installation required):
+**[Launch Cache Extract](https://bet3rd.github.io/cache-extract)**
+
+## 💻 Local Installation
+
+If you prefer to run the tool locally on your machine:
 
 1. **Install**
    ```bash
