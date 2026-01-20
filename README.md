@@ -1,4 +1,4 @@
-# Cache Extract 2.1 - Web Edition
+# Cache Extract - Web Edition
 
 A web tool for extracting JWT tokens and credentials from binary files. Upload `.exe` or `.txt` files, extract credentials in bulk, and download as a combined list.
 
