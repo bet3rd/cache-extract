@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cache Extract Cache Tool - 2.1 Web</title>
+    <style>
+        :root {
+            /* Theme based on your screenshot */
+            --bg-body: #050505;       /* Almost black */
+            --bg-panel: #121212;      /* Dark grey panel */
+            --bg-input: #1e1e1e;      /* Input field background */
+            
+            /* The Cache Extract Red Gradient */
+            --primary-start: #d92424; 
+            --primary-end: #8a0e0e;
+            --accent-glow: rgba(217, 36, 36, 0.4);
+
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+            --border: #333333;
+            
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            background-image: radial-gradient(circle at 50% 0%, #2a0a0a 0%, var(--bg-body) 60%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Header --- */
+        .header {
+            background: rgba(18, 18, 18, 0.8);
+            border-bottom: 1px solid var(--primary-end);
+            padding: 1rem 0;
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .header-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .logo span { 
+            background: linear-gradient(to right, #ff4d4d, #b30000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- Main Layout --- */
+        .main-container {
+            flex: 1;
+            max-width: 800px; /* Narrower to match the app screenshot */
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .content-panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 4px; /* Boxier look like the app */
+            padding: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Top red line accent */
+        .content-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-start), var(--primary-end));
+        }
+
+        .panel-title {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center; /* Center title like the app */
+            background: linear-gradient(to bottom, #fff, #ccc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- Upload / Input Area --- */
+        .upload-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-area {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--primary-start);
+            box-shadow: 0 0 15px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            transition: 0.3s;
+        }
+
+        .upload-area:hover .upload-icon {
+            color: #ff4d4d;
+            transform: scale(1.1);
+        }
+
+        .upload-text strong {
+            display: block;
+            color: #fff;
+            font-size: 1.1rem;
+        }
+
+        .upload-text span {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* --- Buttons (The Cache Extract Red Style) --- */
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center; /* Center buttons */
+            flex-wrap: wrap;
+        }
+
+        button {
+            /* Default button style (Secondary) */
+            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+            border: 1px solid var(--border);
+            color: #ddd;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            border-color: #555;
+            background: linear-gradient(180deg, #333 0%, #222 100%);
+            color: #fff;
+        }
+
+        /* Primary Action Button (Red) */
+        .btn-primary {
+            background: linear-gradient(180deg, var(--primary-start) 0%, var(--primary-end) 100%);
+            border: 1px solid #700000;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            width: 100%; /* Make primary buttons wide like "Log into string" */
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(180deg, #ff4d4d 0%, #b30000 100%);
+            box-shadow: 0 0 15px var(--accent-glow);
+            border-color: #ff3333;
+        }
+
+        .btn-danger {
+            background: linear-gradient(180deg, #5c1818 0%, #380e0e 100%);
+            color: #ff9999;
+            border-color: #5c1818;
+        }
+        
+        .btn-danger:hover {
+            color: #fff;
+            border-color: var(--danger);
+        }
+
+        /* --- Files List (Terminal Style) --- */
+        .files-section h2 {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 5px;
+        }
+
+        .files-container {
+            min-height: 250px;
+            background: #000; /* Pitch black terminal bg */
+            border: 1px solid #333;
+            border-radius: 2px;
+            padding: 0.5rem;
+            overflow-y: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .file-item {
+            background: transparent;
+            border-bottom: 1px solid #1a1a1a;
+            padding: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-item:hover {
+            background: #0f0f0f;
+        }
+
+        .file-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .file-name {
+            color: #eee;
+            font-size: 0.95rem;
+        }
+
+        .file-meta {
+            font-size: 0.75rem;
+            color: #555;
+        }
+
+        .token-preview {
+            color: var(--primary-start); /* Red text for tokens */
+            font-family: monospace;
+            opacity: 0.8;
+        }
+
+        /* Messages */
+        #messageArea { margin: 1rem 0; min-height: 20px; }
+
+        .message {
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #111;
+            border-left: 3px solid #555;
+        }
+
+        .message-success { border-left-color: var(--success); color: var(--success); }
+        .message-error { border-left-color: var(--primary-start); color: #ff6b6b; }
+        .message-info { border-left-color: #3b82f6; color: #60a5fa; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        .empty-state { color: #444; text-align: center; padding: 2rem; }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <a href="/" class="logo">Cache Extract <span>2.1</span></a>
+            <div style="font-size: 0.8rem; color: #666;">WEB EDITION</div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="content-panel">
+            <h1 class="panel-title">Cache Extract Cache Login</h1>
+            
+            <div class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📎</div>
+                    <div class="upload-text">
+                        <strong>Drop .exe files here</strong>
+                        <span>Bulk Import Ready</span>
+                    </div>
+                    <input type="file" id="fileInput" accept=".exe,.txt" multiple style="display: none;">
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="downloadAllAccounts()">Export All Accounts (Combo)</button>
+            
+            <div id="messageArea"></div>
+
+            <div class="files-section">
+                <div class="section-header">
+                    <h2>Terminal Output</h2>
+                </div>
+
+                <div id="filesContainer" class="files-container">
+                    <div class="empty-state">Waiting for import...</div>
+                </div>
+                
+                <div class="header-buttons" style="margin-top: 15px;">
+                    <button onclick="loadFiles()">Refresh</button>
+                    <button class="btn-danger" onclick="clearAllCache()">Delete All</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+        // --- 1. LOGICA DE PARSARE ---
+        
+        function extractStringsFromBuffer(buffer) {
+            const dataView = new DataView(buffer);
+            let strings = [];
+            let currentStr = "";
+            const minLength = 4;
+
+            for (let i = 0; i < buffer.byteLength; i++) {
+                const charCode = dataView.getUint8(i);
+                if (charCode >= 32 && charCode <= 126) {
+                    currentStr += String.fromCharCode(charCode);
+                } else {
+                    if (currentStr.length >= minLength) {
+                        strings.push(currentStr);
+                    }
+                    currentStr = "";
+                }
+            }
+            if (currentStr.length >= minLength) strings.push(currentStr);
+            return strings;
+        }
+
+        function parseCredentials(strings) {
+            const results = [];
+            for (let i = 0; i < strings.length; i++) {
+                const line = strings[i];
+                // Detectare Token JWT (începe cu "ey", lungime > 50, conține punct)
+                if (line.startsWith('ey') && line.length > 50 && line.includes('.')) {
+                    let username = "Unknown";
+                    
+                    // Verificăm cu 2 poziții în urmă (User -> ID -> Token)
+                    if (i >= 2) {
+                        const potentialUser = strings[i-2];
+                        if (potentialUser.length > 3 && potentialUser.length < 50 && !potentialUser.startsWith('ey')) {
+                            username = potentialUser;
+                        }
+                    } 
+                    // Fallback: 1 poziție în urmă
+                    else if (i >= 1) {
+                         const potentialUser = strings[i-1];
+                         if (potentialUser.length > 3 && potentialUser.length < 50 && !potentialUser.startsWith('ey')) {
+                            username = potentialUser;
+                         }
+                    }
+                    results.push(`${username}----${line}`);
+                }
+            }
+            return [...new Set(results)];
+        }
+
+        // --- 2. BAZA DE DATE (IndexedDB) ---
+
+        const DB_NAME = 'Cache ExtractUltimateDB';
+        const DB_VERSION = 1;
+        const STORE_ACC = 'accounts';
+        let db = null;
+
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains(STORE_ACC)) {
+                        const store = db.createObjectStore(STORE_ACC, { keyPath: 'id', autoIncrement: true });
+                        store.createIndex('timestamp', 'timestamp', { unique: false });
+                    }
+                };
+            });
+        }
+
+        async function storeAccounts(filename, accountsList) {
+            if (!db) await initDB();
+            const tx = db.transaction([STORE_ACC], 'readwrite');
+            const store = tx.objectStore(STORE_ACC);
+            
+            const record = {
+                filename: filename,
+                accounts: accountsList,
+                count: accountsList.length,
+                timestamp: new Date().toISOString()
+            };
+            
+            return new Promise((resolve, reject) => {
+                const request = store.add(record);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function getAllRecords() {
+            if (!db) await initDB();
+            const tx = db.transaction([STORE_ACC], 'readonly');
+            return new Promise((resolve, reject) => {
+                const request = tx.objectStore(STORE_ACC).getAll();
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function deleteRecord(id) {
+            if (!db) await initDB();
+            const tx = db.transaction([STORE_ACC], 'readwrite');
+            return new Promise((resolve, reject) => {
+                const request = tx.objectStore(STORE_ACC).delete(id);
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        // --- 3. UI & EVENT HANDLERS ---
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const messageArea = document.getElementById('messageArea');
+
+        // Click to upload
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        // Drag & Drop visual effects
+        uploadArea.addEventListener('dragover', (e) => { 
+            e.preventDefault(); 
+            uploadArea.classList.add('dragover'); 
+        });
+
+        uploadArea.addEventListener('dragleave', () => { 
+            uploadArea.classList.remove('dragover'); 
+        });
+        
+        // Handle Drop (Bulk)
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                // Convertim FileList în Array pentru siguranță
+                const filesArray = Array.from(e.dataTransfer.files);
+                handleBatch(filesArray);
+            }
+        });
+
+        // Handle Select (Bulk)
+        fileInput.addEventListener('change', (e) => { 
+            if (e.target.files && e.target.files.length > 0) {
+                // Convertim FileList în Array înainte de a goli input-ul
+                const filesArray = Array.from(e.target.files);
+                handleBatch(filesArray);
+            }
+            // Resetăm input-ul pentru a permite re-selectarea acelorași fișiere
+            fileInput.value = ''; 
+        });
+
+        function showMessage(msg, type) {
+            messageArea.innerHTML = `<div class="message message-${type}">${msg}</div>`;
+            // Ștergem mesajul după 5 secunde, dacă nu e de tip info (loading)
+            if (type !== 'info') {
+                setTimeout(() => {
+                    messageArea.innerHTML = '';
+                }, 5000);
+            }
+        }
+
+        // Procesare asincronă a unui singur fișier
+        function processFilePromise(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                
+                reader.onload = async (e) => {
+                    try {
+                        const buffer = e.target.result;
+                        const allStrings = extractStringsFromBuffer(buffer);
+                        const validAccounts = parseCredentials(allStrings);
+                        
+                        if (validAccounts.length > 0) {
+                            await storeAccounts(file.name, validAccounts);
+                            resolve(validAccounts.length);
+                        } else {
+                            resolve(0);
+                        }
+                    } catch (err) {
+                        console.error("Error parsing file:", file.name, err);
+                        resolve(0); // Continuăm execuția chiar dacă un fișier dă eroare
+                    }
+                };
+                
+                reader.onerror = () => resolve(0);
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        // Procesare Batch (Lot)
+        async function handleBatch(fileList) {
+            const totalFiles = fileList.length;
+            showMessage(`Processing ${totalFiles} file(s)...`, 'info');
+            
+            let totalAccounts = 0;
+            let filesWithData = 0;
+
+            for (let i = 0; i < totalFiles; i++) {
+                const file = fileList[i];
+                if (!file) continue;
+
+                // Actualizăm progresul
+                messageArea.innerHTML = `<div class="message message-info">Processing file ${i + 1}/${totalFiles}: ${file.name}...</div>`;
+                
+                // Așteptăm procesarea fișierului curent
+                const count = await processFilePromise(file);
+                
+                if (count > 0) {
+                    totalAccounts += count;
+                    filesWithData++;
+                }
+            }
+            
+            // Reîncărcăm lista din baza de date
+            await loadFiles();
+            
+            // Mesaj final
+            if (totalAccounts > 0) {
+                showMessage(`Done! Extracted ${totalAccounts} accounts from ${filesWithData} valid files.`, 'success');
+            } else {
+                showMessage(`Done. No credentials found in ${totalFiles} files.`, 'error');
+            }
+        }
+
+        async function loadFiles() {
+            const container = document.getElementById('filesContainer');
+            
+            try {
+                const records = await getAllRecords();
+                
+                if (records.length === 0) {
+                    container.innerHTML = '<div class="empty-state">No data loaded. Drag .exe files to start.</div>';
+                    return;
+                }
+                
+                // Sortare după dată (cele mai noi primele)
+                records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                let html = '';
+                records.forEach(rec => {
+                    // Preview simplu pentru primul cont
+                    const firstAcc = rec.accounts[0] || "Unknown";
+                    const previewParts = firstAcc.split('----');
+                    const userPreview = previewParts[0];
+                    
+                    html += `
+                        <div class="file-item">
+                            <div class="file-info">
+                                <div class="file-name">${escapeHtml(rec.filename)} <span style="color:#666">(${rec.count})</span></div>
+                                <div class="file-meta">
+                                    <span class="token-preview">${escapeHtml(userPreview)}...</span>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:5px">
+                                <button onclick="copyAccounts(${rec.id})" style="padding:4px 8px; font-size:0.75rem">COPY</button>
+                                <button class="btn-danger" onclick="deleteSingle(${rec.id})" style="padding:4px 8px; font-size:0.75rem">DEL</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = '<div class="empty-state" style="color:red">Error loading database.</div>';
+            }
+        }
+
+        // --- 4. ACTIONS (Buttons) ---
+
+        async function copyAccounts(id) {
+            const records = await getAllRecords();
+            const rec = records.find(r => r.id === id);
+            if (rec) {
+                await navigator.clipboard.writeText(rec.accounts.join('\n'));
+                showMessage('Copied to clipboard!', 'success');
+            }
+        }
+
+        async function deleteSingle(id) {
+            if (confirm('Are you sure you want to delete this file\'s data?')) {
+                await deleteRecord(id);
+                loadFiles();
+            }
+        }
+
+        async function downloadAllAccounts() {
+            const records = await getAllRecords();
+            if (records.length === 0) {
+                showMessage('Nothing to download.', 'error');
+                return;
+            }
+
+            let combined = [];
+            records.forEach(rec => combined.push(...rec.accounts));
+            
+            // Eliminare duplicate
+            const uniqueCombined = [...new Set(combined)];
+            
+            if (uniqueCombined.length === 0) {
+                showMessage('No valid accounts found.', 'error');
+                return;
+            }
+
+            const filename = `Cache Extract_Combo_${uniqueCombined.length}.txt`;
+            const blob = new Blob([uniqueCombined.join('\n')], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+            showMessage(`Exported ${uniqueCombined.length} unique accounts.`, 'success');
+        }
+
+        async function clearAllCache() {
+            if (!confirm('Warning: This will delete ALL history. Continue?')) return;
+            
+            if (!db) await initDB();
+            const tx = db.transaction([STORE_ACC], 'readwrite');
+            const req = tx.objectStore(STORE_ACC).clear();
+            
+            req.onsuccess = () => {
+                showMessage('History cleared.', 'success');
+                loadFiles();
+            };
+        }
+
+        function escapeHtml(text) {
+            if (!text) return "";
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize
+        (async () => {
+            await initDB();
+            loadFiles();
+        })();
+    </script>
+</body>
+</html>
