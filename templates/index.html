@@ -608,6 +608,7 @@
                             </div>
                             <div style="display:flex; gap:5px">
                                 <button onclick="copyAccounts(${rec.id})" style="padding:4px 8px; font-size:0.75rem">COPY</button>
+                                <button onclick="downloadSingle(${rec.id})" style="padding:4px 8px; font-size:0.75rem">TXT</button>
                                 <button class="btn-danger" onclick="deleteSingle(${rec.id})" style="padding:4px 8px; font-size:0.75rem">DEL</button>
                             </div>
                         </div>
@@ -639,6 +640,37 @@
             }
         }
 
+        function saveTxt(lines, filename) {
+            const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Export a single record's accounts as its own .txt
+        async function downloadSingle(id) {
+            const records = await getAllRecords();
+            const rec = records.find(r => r.id === id);
+            if (!rec) {
+                showMessage('Entry not found.', 'error');
+                return;
+            }
+
+            const unique = [...new Set(rec.accounts)];
+            if (unique.length === 0) {
+                showMessage('No accounts in this entry.', 'error');
+                return;
+            }
+
+            // Strip extension from source filename, then append account count
+            const base = rec.filename.replace(/\.[^/.]+$/, '');
+            saveTxt(unique, `${base}_${unique.length}.txt`);
+            showMessage(`Exported ${unique.length} accounts from ${rec.filename}.`, 'success');
+        }
+
         async function downloadAllAccounts() {
             const records = await getAllRecords();
             if (records.length === 0) {
@@ -657,16 +689,7 @@
                 return;
             }
 
-            const filename = `Cache Extract_Combo_${uniqueCombined.length}.txt`;
-            const blob = new Blob([uniqueCombined.join('\n')], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.click();
-            
-            URL.revokeObjectURL(url);
+            saveTxt(uniqueCombined, `Cache Extract_Combo_${uniqueCombined.length}.txt`);
             showMessage(`Exported ${uniqueCombined.length} unique accounts.`, 'success');
         }
 
