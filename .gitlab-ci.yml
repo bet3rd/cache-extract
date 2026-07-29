@@ -1,0 +1,17 @@
+# Deploy the static site to GitLab Pages.
+# Mirrors the GitHub Pages workflow: copies templates/* into the publish dir.
+# GitLab Pages serves whatever the `pages` job places in `public/`.
+
+pages:
+  stage: deploy
+  image: alpine:latest
+  script:
+    - rm -rf public
+    - mkdir -p public
+    - cp -R templates/* public/
+  artifacts:
+    paths:
+      - public
+  rules:
+    # Only publish from the default branch (main).
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
